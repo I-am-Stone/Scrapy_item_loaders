@@ -1,9 +1,8 @@
 
 
 <h1>Scrapy Overview</h1>
-Scrapy is a fast high-level web crawling and web scraping framework, used to crawl websites and extract structured data from their pages. It can be used for a wide range of purposes, from data mining to monitoring and automated testing.
-In this project I am tring to demostrate How you can use Scrapy itemloders for filtering The data you requried
-
+Scrapy is a fast, high-level web crawling and web scraping framework used to crawl websites and extract structured data from their pages. It can be employed for various purposes, including data mining, monitoring, and automated testing.
+In this project, I am demonstrating how you can utilize Scrapy item loaders to filter the data you require.
 
 <h1>Requirements</h1>
 <ul>
