@@ -31,5 +31,4 @@ In this project, I am demonstrating how you can utilize Scrapy item loaders to f
 Python have thier Offical Documentaion in https://docs.scrapy.org/en/latest/
 
 <h1>Item Loders</h1>
-In General Item Loaders are Used for filter requried Data from the Data it extracted. I will be updating the documentation when I have time. For now check the code.
-
+Generally, item loaders are used to filter out the required data from the extracted data. I will update the documentation when I have time
