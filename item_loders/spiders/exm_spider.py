@@ -1,7 +1,6 @@
 import scrapy
 from item_loders.items import MainItem
 from scrapy.loader import ItemLoader
-from scrapy_selenium import SeleniumRequest
 
 
 
