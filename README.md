@@ -48,18 +48,47 @@ How to Use Item Loaders
    In your spider, use the `ItemLoader` class to load and process data:
 
    ```python
-   from scrapy.loader import ItemLoader
-   from myproject.items import MainItem
+   import scrapy
+from item_loders.items import MainItem
+from scrapy.loader import ItemLoader
 
-   class MySpider(scrapy.Spider):
-       name = 'my_spider'
-       start_urls = ['http://example.com']
 
-       def parse(self, response):
-           loader = ItemLoader(item=MainItem(), response=response)
-           loader.add_xpath('Course_Name', '//h1/text()')
-           loader.add_xpath('Course_Description', '//div[@class="description"]/text()')
-           loader.add_xpath('International_Fee', '//span[@class="fee"]/text()')
+
+
+
+class burnSpider(scrapy.Spider):
+    name='burnel'
+    file_name='University of Brunel'
+
+
+    def start_requests(self):
+        urls=['https://www.brunel.ac.uk/study/Course-listing?courseLevel=&page=0']
+
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+
+    def parse(self, response):
+        courses=response.xpath('//table[contains(@id,"responsive-example-table")]//a/@href').getall()
+        
+        for course in courses:
+            if course is not None:
+                yield response.follow(course, callback=self.parse1)
+
+        next_page=response.xpath('//ul[contains(@class,"pagination")]//a/@href').getall()
+        for next in next_page:
+            yield response.follow(next, callback=self.parse)
+
+    def parse1(self, response):
+
+        Co=ItemLoader(item=MainItem(),response=response)
+
+        Co.add_value('Course_Website',response.url)
+        Co.add_xpath('Course_Name','//title')
+
+        Co.add_xpath('Duration','//h3[contains(text(),"study")]/parent::div')
+        Co.add_xpath('Duration_term','//h3[contains(text(),"study")]/parent::div')
+
+        Co.add_xpath('Study_Load','//h3[contains(text(),"study")]/parent::div')
            # Add more fields and processing rules as needed
 
            yield loader.load_item()
@@ -70,16 +99,29 @@ How to Use Item Loaders
    Define custom processing functions to clean or format the data:
 
    ```python
-   def clean_fee(value):
-       return value.replace('A$', 'AUD').strip()
+   def intake_clean(value):
+    if value:
+        return value.replace('Next intake', '').replace('is', '').strip()
 
-   def clean_description(value):
-       return value.replace('\n', ' ').strip()
+def clean_city(value):
+    if value:
+        return value.replace('Distance Learning', '').strip()
+
+def cn(value):
+    return value.strip()
+
 
    class MainItem(scrapy.Item):
-       Course_Name = scrapy.Field(input_processor=MapCompose(remove_tags, str.strip), output_processor=TakeFirst())
-       Course_Description = scrapy.Field(input_processor=MapCompose(remove_tags, clean_description))
-       International_Fee = scrapy.Field(input_processor=MapCompose(remove_tags, clean_fee), output_processor=TakeFirst())
+    Course_Website = scrapy.Field()
+    Course_Name = scrapy.Field(input_processor=MapCompose(remove_tags, clean_space, cn), output_processor=TakeFirst())
+    Course_Description = scrapy.Field(input_processor=MapCompose(remove_tags, clean_space))
+    Career = scrapy.Field(input_processor=MapCompose(clean_space), output_processor=TakeFirst())
+    City = scrapy.Field(input_processor=MapCompose(remove_tags, clean_space, clean_city))
+    International_Fee = scrapy.Field(input_processor=MapCompose(remove_tags, clean_space, fee_clean, fees), output_processor=TakeFirst())
+    Domestic_fee = scrapy.Field(input_processor=MapCompose(remove_tags, clean_space, fee_clean, fees), output_processor=TakeFirst())
+    Currency = scrapy.Field(input_processor=MapCompose(currency_clean))
+    Intake_Month = scrapy.Field(input_processor=MapCompose(remove_tags, clean_space, clean_numbers))
+    Study_Load = scrapy.Field(input_processor=MapCompose(remove_tags, clean_numbers, clean_space, study))
    ```
 
 4. Testing and Validation
